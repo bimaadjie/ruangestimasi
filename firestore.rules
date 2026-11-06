@@ -1,0 +1,98 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    // Collection: /users/{userId}
+    // Fields:
+    //   - uid: string (required, immutable)
+    //   - fullName: string (required, 1..120 chars)
+    //   - email: string (required, valid email)
+    //   - userType: string (required, 'Student' | 'Estimator' | 'Other')
+    //   - createdAt: string (required, immutable)
+    //   - updatedAt: string (required)
+    //
+    // Collection: /users/{userId}/projects/{projectId}
+    // Fields:
+    //   - id: string (required)
+    //   - ownerUid: string (required, immutable)
+    //   - name: string (required, 1..160 chars)
+    //   - location: string (optional)
+    //   - description: string (optional)
+    //   - floorCount: number (required)
+    //   - floors: list (required)
+    //   - works: list (required)
+    //   - rejectedDraftKeys: list (optional)
+    //   - catalogVersion: string (required)
+    //   - isolationVersion: string (optional)
+    //   - aiTakeoffHistory: list (optional)
+    //   - createdAt: string (required)
+    //   - updatedAt: string (required)
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        request.auth.token.email == "muh.bima.adjie@gmail.com" &&
+        request.auth.token.email_verified == true;
+    }
+
+    function isValidEmail(email) {
+      return email is string &&
+        email.size() >= 3 &&
+        email.size() <= 160 &&
+        email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function isValidUserProfile(data, userId) {
+      return data.keys().hasAll(['uid', 'fullName', 'email', 'userType', 'createdAt', 'updatedAt']) &&
+        data.keys().hasOnly(['uid', 'fullName', 'email', 'userType', 'createdAt', 'updatedAt']) &&
+        data.uid == userId &&
+        data.fullName is string && data.fullName.size() >= 1 && data.fullName.size() <= 120 &&
+        isValidEmail(data.email) &&
+        data.userType in ['Student', 'Estimator', 'Other'] &&
+        data.createdAt is string && data.createdAt.size() <= 60 &&
+        data.updatedAt is string && data.updatedAt.size() <= 60;
+    }
+
+    function isValidProjectDocument(data, userId, projectId) {
+      return data.keys().hasAll(['id', 'ownerUid', 'name', 'floorCount', 'floors', 'works', 'catalogVersion', 'createdAt', 'updatedAt']) &&
+        data.id == projectId &&
+        data.ownerUid == userId &&
+        data.name is string && data.name.size() >= 1 && data.name.size() <= 160 &&
+        data.floorCount is number && data.floorCount >= 0 && data.floorCount <= 100 &&
+        data.floors is list &&
+        data.works is list &&
+        data.catalogVersion is string && data.catalogVersion.size() <= 60 &&
+        data.createdAt is string && data.createdAt.size() <= 60 &&
+        data.updatedAt is string && data.updatedAt.size() <= 60;
+    }
+
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if (isOwner(userId) || isAdmin()) && isValidUserProfile(request.resource.data, userId);
+      allow update: if (isOwner(userId) || isAdmin()) &&
+        isValidUserProfile(request.resource.data, userId) &&
+        request.resource.data.uid == resource.data.uid &&
+        request.resource.data.createdAt == resource.data.createdAt;
+      allow delete: if isAdmin();
+
+      match /projects/{projectId} {
+        allow read: if isOwner(userId) || isAdmin();
+        allow create: if (isOwner(userId) || isAdmin()) && isValidProjectDocument(request.resource.data, userId, projectId);
+        allow update: if (isOwner(userId) || isAdmin()) &&
+          isValidProjectDocument(request.resource.data, userId, projectId) &&
+          request.resource.data.ownerUid == resource.data.ownerUid;
+        allow delete: if isOwner(userId) || isAdmin();
+      }
+    }
+  }
+}

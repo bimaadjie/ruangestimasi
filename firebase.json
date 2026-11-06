@@ -1,0 +1,8 @@
+{
+  "firestore": {
+    "databaseId": "ai-studio-ruangrabaiquanti-fe31a1d6-62db-405b-8277-2f5da668fc00",
+    "rules": "firestore.rules",
+    "edition": "ENTERPRISE",
+    "dataAccessMode": "FIRESTORE_NATIVE"
+  }
+}
