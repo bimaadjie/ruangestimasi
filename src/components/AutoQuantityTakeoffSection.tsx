@@ -1,15 +1,18 @@
 /**
- * RuangEstimasi: Asisten Ekstraksi & Input Manual
- * Menampilkan kartu Asisten Ekstraksi berdampingan dengan kartu Input Manual.
+ * RuangEstimasi: Action Bar Tambah / Ekstraksi Pekerjaan
+ * Menggabungkan opsi Ekstraksi Denah AI dan Input Manual ke dalam satu tombol aksi terpadu.
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
-  FileSpreadsheet,
-  FileEdit,
+  Sparkles,
+  Plus,
   ScanText,
+  FileText,
+  ChevronRight,
 } from 'lucide-react';
 import { FloorItem, ProjectWorkItem } from '../types';
+import { AddWorkActionModal } from './AddWorkActionModal';
 
 interface AutoQuantityTakeoffSectionProps {
   floors: FloorItem[];
@@ -26,90 +29,67 @@ export const AutoQuantityTakeoffSection: React.FC<AutoQuantityTakeoffSectionProp
   onOpenDetailedModal,
   existingWorks,
 }) => {
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
   const activeDraftCount = existingWorks.filter(
     (w) => w.isActive && w.origin === 'ai' && w.aiVerificationStatus === 'draft'
   ).length;
 
-  const targetFloor = floors.find((f) => f.id === activeFloorId) || floors[1] || floors[0];
-
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 items-stretch">
-      {/* Left Card: AI Takeoff Assistant */}
-      <div className="apple-glass-card rounded-2xl p-4 sm:p-5 flex flex-col justify-between hover:shadow-[0_6px_20px_rgba(0,0,0,0.04)] transition-all group">
-        <div>
-          <div className="flex items-start justify-between gap-3 mb-2">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-b from-[#0071E3] to-[#005bb5] text-white flex items-center justify-center shadow-xs shrink-0 group-hover:scale-105 transition-transform">
-                <ScanText className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h3 className="text-sm sm:text-base font-semibold tracking-[-0.015em] text-slate-900 leading-tight">
-                    Ekstraksi Denah (AI)
-                  </h3>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#0071E3]/10 text-[#0071E3] tracking-wide">
-                    Multi-Gambar
-                  </span>
-                </div>
-                <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">
-                  Pindai denah arsitektur &amp; struktur untuk draf volume otomatis.
-                </p>
-              </div>
-            </div>
-
-            {activeDraftCount > 0 && (
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200/60 shrink-0">
-                {activeDraftCount} Draf AI
-              </span>
-            )}
+    <>
+      <div className="apple-glass-card rounded-2xl p-3.5 sm:p-4 mb-5 flex flex-wrap items-center justify-between gap-3 shadow-2xs hover:shadow-xs transition-shadow">
+        {/* Left: Icon & Description */}
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#0071E3] to-[#005bb5] text-white flex items-center justify-center shadow-xs shrink-0">
+            <Sparkles className="w-5 h-5 text-white" />
           </div>
-        </div>
-
-        <div className="mt-3.5 pt-3 border-t border-black/[0.05]">
-          <button
-            type="button"
-            onClick={onOpenDetailedModal}
-            className="w-full py-2.5 px-4 rounded-xl bg-[#0071E3] hover:bg-[#0077ED] active:bg-[#0062C4] text-white font-semibold text-xs transition shadow-2xs flex items-center justify-center gap-2 cursor-pointer apple-press min-h-[38px]"
-          >
-            <FileSpreadsheet className="w-4 h-4" />
-            <span>Buka Asisten Ekstraksi</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Right Card: Manual Input */}
-      <div className="apple-glass-card rounded-2xl p-4 sm:p-5 flex flex-col justify-between hover:shadow-[0_6px_20px_rgba(0,0,0,0.04)] transition-all group">
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-xl bg-black/[0.05] text-slate-800 border border-black/[0.05] flex items-center justify-center shadow-2xs shrink-0 group-hover:scale-105 transition-transform">
-              <FileEdit className="w-5 h-5 text-slate-700" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-sm sm:text-base font-semibold tracking-[-0.015em] text-slate-900 leading-tight">
-                  Input Manual
-                </h3>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-black/[0.04] text-slate-600">
-                  {targetFloor?.name || 'Lantai 1'}
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="text-sm font-bold tracking-tight text-slate-900 leading-tight">
+                Input Pekerjaan &amp; Ekstraksi Denah
+              </h3>
+              {activeDraftCount > 0 ? (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#0071E3]/10 text-[#0071E3]">
+                  <FileText className="w-3 h-3" />
+                  <span>{activeDraftCount} Draf AI Siap Verifikasi</span>
                 </span>
-              </div>
-              <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">
-                Pilih pekerjaan dari katalog standar atau kustom per lantai.
-              </p>
+              ) : (
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-black/[0.04] text-slate-600">
+                  AI + Katalog Standar USC
+                </span>
+              )}
             </div>
+            <p className="text-xs text-slate-500 mt-0.5 truncate">
+              Pindai denah otomatis dengan AI atau input manual dari katalog pekerjaan standar.
+            </p>
           </div>
         </div>
 
-        <div className="mt-3.5 pt-3 border-t border-black/[0.05]">
+        {/* Right: Single Consolidated Primary Action Button */}
+        <div className="flex items-center gap-2 shrink-0">
           <button
             type="button"
-            onClick={() => onOpenManualForm(activeFloorId)}
-            className="w-full py-2.5 px-4 rounded-xl bg-black/[0.04] hover:bg-black/[0.08] active:bg-black/[0.12] text-slate-800 font-semibold text-xs border border-black/[0.06] transition shadow-2xs flex items-center justify-center cursor-pointer apple-press min-h-[38px]"
+            onClick={() => setIsModalOpen(true)}
+            className="inline-flex items-center gap-2 py-2 px-4 rounded-xl bg-[#0071E3] hover:bg-[#0077ED] active:bg-[#0062C4] text-white text-xs font-bold shadow-xs transition cursor-pointer apple-press min-h-[38px]"
+            title="Buka pilihan metode input pekerjaan"
           >
-            Buka Form Input
+            <Plus className="w-4 h-4" />
+            <span>+ Tambah / Ekstraksi Pekerjaan</span>
+            <ChevronRight className="w-3.5 h-3.5 text-white/80 -mr-0.5" />
           </button>
         </div>
       </div>
-    </div>
+
+      {/* Action Dialog / Modal */}
+      <AddWorkActionModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        floors={floors}
+        activeFloorId={activeFloorId}
+        onSelectAI={onOpenDetailedModal}
+        onSelectManual={onOpenManualForm}
+        existingWorks={existingWorks}
+      />
+    </>
   );
 };

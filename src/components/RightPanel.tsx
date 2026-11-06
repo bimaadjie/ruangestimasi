@@ -96,22 +96,26 @@ export const RightPanel: React.FC<RightPanelProps> = ({
         </button>
       </div>
 
-      {/* 2. Panduan Quantity Surveyor */}
-      <div className="apple-glass-card rounded-3xl p-5 text-xs space-y-3 transition-all">
-        <div className="flex items-center gap-2 text-slate-900 font-semibold tracking-tight">
-          <Info className="w-4 h-4 text-[#0071E3] shrink-0" />
-          <span>Panduan Quantity Takeoff</span>
+      {/* 2. Panduan & Tips Ringkas */}
+      <div className="apple-glass-card rounded-3xl p-4 text-xs space-y-2.5 transition-all">
+        <div className="flex items-center gap-2 text-slate-900 font-semibold text-xs tracking-tight">
+          <Info className="w-3.5 h-3.5 text-[#0071E3] shrink-0" />
+          <span>Tips Cepat</span>
         </div>
-        <p className="text-slate-600 leading-relaxed text-[11px]">
-          Volume Draf hasil AI belum ditambahkan ke total rekap sebelum disetujui. Tekan tombol <strong className="font-semibold text-slate-800">Setujui</strong> pada pekerjaan terkait atau gunakan tombol <strong className="font-semibold text-slate-800">Setujui Semua yang Lengkap</strong>.
-        </p>
-        <div className="pt-2 border-t border-black/[0.06] text-[11px] text-slate-600 space-y-1">
-          <div className="flex items-center gap-1.5">
-            <Layers className="w-3.5 h-3.5 text-slate-400" />
-            <span>Tambah pekerjaan langsung di kelompok lantai terkait.</span>
+
+        {summaries.draftWorksCount > 0 && (
+          <p className="text-amber-800 bg-amber-500/10 border border-amber-500/20 rounded-xl px-2.5 py-1.5 text-[11px] leading-snug">
+            Setujui draf AI agar volumenya masuk ke rekap total proyek.
+          </p>
+        )}
+
+        <div className="text-[11px] text-slate-500 space-y-1.5">
+          <div className="flex items-center gap-2">
+            <Layers className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            <span>Tambah pekerjaan langsung per lantai.</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <Ruler className="w-3.5 h-3.5 text-slate-400" />
+          <div className="flex items-center gap-2">
+            <Ruler className="w-3.5 h-3.5 text-slate-400 shrink-0" />
             <span>Dimensi cm otomatis dikonversi ke meter (300 cm = 3 m).</span>
           </div>
         </div>

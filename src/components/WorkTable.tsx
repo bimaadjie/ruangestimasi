@@ -23,6 +23,8 @@ import {
   Minimize2,
   FolderOpen,
   Folder,
+  SlidersHorizontal,
+  X,
 } from 'lucide-react';
 import { AIVerificationBadge, FloorItem, ProjectWorkItem, WorkCategory } from '../types';
 import { formatIndonesianNumber } from '../services/calculationEngine';
@@ -80,6 +82,26 @@ export const WorkTable: React.FC<WorkTableProps> = ({
   >('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [collapsedFloors, setCollapsedFloors] = useState<Record<string, boolean>>({});
+  const [isFilterPopoverOpen, setIsFilterPopoverOpen] = useState<boolean>(false);
+  const filterPopoverRef = React.useRef<HTMLDivElement>(null);
+
+  // Close filter popover when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        filterPopoverRef.current &&
+        !filterPopoverRef.current.contains(event.target as Node)
+      ) {
+        setIsFilterPopoverOpen(false);
+      }
+    };
+    if (isFilterPopoverOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isFilterPopoverOpen]);
 
   // State laci/accordion kategori per lantai: key = `${floorId}::${category}`
   // Disimpan secara terpisah per (userId, projectId) agar status buka/tutup setiap lantai tetap terjaga independen
@@ -279,6 +301,25 @@ export const WorkTable: React.FC<WorkTableProps> = ({
   );
   const readyDraftWorks = activeDraftWorks.filter((w) => w.calculatedVolume !== null);
   const incompleteDraftWorks = activeDraftWorks.filter((w) => w.calculatedVolume === null);
+
+  const activeFilterCount =
+    (selectedCategory !== 'Semua' ? 1 : 0) +
+    (localStatusFilter !== 'all' ? 1 : 0);
+
+  const getStatusFilterLabel = (status: string) => {
+    switch (status) {
+      case 'belum_diisi':
+        return 'Belum Diisi';
+      case 'tidak_lengkap':
+        return 'Tidak Lengkap';
+      case 'perlu_verifikasi':
+        return 'Perlu Verifikasi';
+      case 'terverifikasi':
+        return 'Terverifikasi';
+      default:
+        return 'Semua Status';
+    }
+  };
 
   // Filter works by floor tab, category, status filter, and search text
   const filteredWorks = works.filter((w) => {
