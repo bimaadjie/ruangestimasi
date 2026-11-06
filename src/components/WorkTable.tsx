@@ -751,18 +751,14 @@ export const WorkTable: React.FC<WorkTableProps> = ({
 
       {/* Grouped Table View with Floor Groups -> Independent Category Drawers -> Work Rows */}
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[820px] text-left text-xs border-collapse">
+        <table className="w-full text-left text-xs border-collapse">
           <thead>
-            <tr className="bg-slate-50/80 text-slate-600 font-semibold border-b border-slate-200/80 select-none">
-              <th className="py-3 px-3 w-10 text-center">Pilih</th>
-              <th className="py-3 px-3 w-10 text-center">No</th>
-              <th className="py-3 px-4 min-w-[210px]">Pekerjaan</th>
-              <th className="py-3 px-3 w-28">Kategori</th>
-              <th className="py-3 px-4 min-w-[180px]">Parameter / Rumus</th>
-              <th className="py-3 px-3 w-16 text-center">Satuan</th>
-              <th className="py-3 px-4 w-28 text-right">Volume</th>
-              <th className="py-3 px-4 w-36 text-center">Status</th>
-              <th className="py-3 px-4 w-40 text-right">Aksi</th>
+            <tr className="bg-slate-50/80 text-slate-500 font-semibold border-b border-black/[0.06] select-none text-[11px] tracking-tight">
+              <th className="py-2.5 px-2.5 w-12 text-center">Pilih &amp; #</th>
+              <th className="py-2.5 px-3 min-w-[200px]">Pekerjaan &amp; Parameter</th>
+              <th className="py-2.5 px-3 w-28 text-right">Volume</th>
+              <th className="py-2.5 px-3 w-28 text-center">Status</th>
+              <th className="py-2.5 px-3 w-24 text-right">Aksi</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -792,7 +788,7 @@ export const WorkTable: React.FC<WorkTableProps> = ({
                 <React.Fragment key={floor.id}>
                   {/* 1. FLOOR GROUP HEADER BAR */}
                   <tr className="bg-slate-100 border-t-2 border-slate-200 select-none">
-                    <td colSpan={9} className="py-2.5 px-4 font-bold text-slate-800">
+                    <td colSpan={5} className="py-2.5 px-4 font-bold text-slate-800">
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <div className="flex items-center gap-2.5 flex-1 min-w-0">
                           {floorWorks.length > 0 && (
@@ -931,7 +927,7 @@ export const WorkTable: React.FC<WorkTableProps> = ({
                               isCategoryOpen
                             )}`}
                           >
-                            <td colSpan={9} className="py-2.5 px-5">
+                            <td colSpan={5} className="py-2.5 px-5">
                               <div className="flex flex-wrap items-center justify-between gap-2">
                                 <div className="flex items-center gap-2.5">
                                   <button
@@ -1022,29 +1018,29 @@ export const WorkTable: React.FC<WorkTableProps> = ({
                                       : 'bg-white'
                                   }`}
                                 >
-                                  {/* Checkbox */}
-                                  <td className="py-3 px-3 text-center">
-                                    <button
-                                      type="button"
-                                      onClick={() => toggleSelectWork(work.id)}
-                                      className="text-slate-400 hover:text-blue-600 transition cursor-pointer"
-                                      title="Pilih pekerjaan"
-                                    >
-                                      {isSelected ? (
-                                        <CheckSquare className="w-4 h-4 text-blue-600" />
-                                      ) : (
-                                        <Square className="w-4 h-4" />
-                                      )}
-                                    </button>
+                                  {/* 1. Pilih & No */}
+                                  <td className="py-2.5 px-2.5 text-center">
+                                    <div className="flex flex-col items-center justify-center gap-0.5">
+                                      <button
+                                        type="button"
+                                        onClick={() => toggleSelectWork(work.id)}
+                                        className="text-slate-400 hover:text-blue-600 transition cursor-pointer apple-press"
+                                        title="Pilih pekerjaan"
+                                      >
+                                        {isSelected ? (
+                                          <CheckSquare className="w-4 h-4 text-blue-600" />
+                                        ) : (
+                                          <Square className="w-4 h-4" />
+                                        )}
+                                      </button>
+                                      <span className="text-[10px] text-slate-400 font-mono leading-none">
+                                        {idx + 1}
+                                      </span>
+                                    </div>
                                   </td>
 
-                                  {/* No */}
-                                  <td className="py-3 px-3 text-center text-slate-400 font-medium font-mono">
-                                    {idx + 1}
-                                  </td>
-
-                                  {/* Pekerjaan */}
-                                  <td className="py-3 px-4">
+                                  {/* 2. Pekerjaan & Parameter */}
+                                  <td className="py-2.5 px-3 min-w-[200px]">
                                     <div className="flex items-start gap-2">
                                       <div className="min-w-0 flex-1">
                                         <div className="flex items-center gap-1.5 flex-wrap">
@@ -1061,28 +1057,61 @@ export const WorkTable: React.FC<WorkTableProps> = ({
                                           )}
                                         </div>
 
-                                        {/* Sub-info: AI Source, Verification Badge, Location, or Missing Parameter Hint */}
-                                        <div className="flex flex-wrap items-center gap-1.5 mt-1">
-                                          {work.origin === 'ai' && (
-                                            <>
-                                              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">
-                                                <FileText className="w-2.5 h-2.5" />
-                                                {work.sourceInfo || work.sourceDocument || 'Gambar AI'}
-                                              </span>
-                                              {renderVerificationBadgePill(work.verificationBadge)}
-                                            </>
-                                          )}
-                                          {work.elementLocation && (
-                                            <span className="text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
-                                              Lokasi: {work.elementLocation}
-                                            </span>
-                                          )}
-                                          {work.segments && work.segments.length > 0 && (
-                                            <span className="text-[10px] font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 px-1.5 py-0.5 rounded">
-                                              {work.segments.length} Segmen Grid
-                                            </span>
+                                        {/* Formula & Parameters preview inline */}
+                                        <div className="flex flex-wrap items-center gap-1.5 mt-1 text-[11px]">
+                                          <span className="font-mono text-slate-600 bg-slate-100/80 border border-slate-200/60 px-1.5 py-0.5 rounded text-[10px]">
+                                            {work.formulaDisplay}
+                                          </span>
+                                          {filledParams.length === 0 ? (
+                                            <span className="text-[10px] text-slate-400">Parameter belum diisi</span>
+                                          ) : (
+                                            <div className="flex flex-wrap items-center gap-1 text-[10px] text-slate-500">
+                                              {work.parameters.slice(0, 3).map((p) => (
+                                                <span
+                                                  key={p.id}
+                                                  className={`px-1 py-0.5 rounded ${
+                                                    p.value !== null
+                                                      ? p.source === 'ai'
+                                                        ? 'bg-blue-50 text-blue-700 font-medium'
+                                                        : 'bg-slate-100 text-slate-700'
+                                                      : 'bg-amber-50 text-amber-800 font-medium border border-amber-200'
+                                                  }`}
+                                                >
+                                                  {p.label || p.name}:{' '}
+                                                  {p.value !== null ? `${p.value} ${p.unit}` : '-'}
+                                                </span>
+                                              ))}
+                                              {work.parameters.length > 3 && (
+                                                <span className="text-slate-400">+{work.parameters.length - 3} lainnya</span>
+                                              )}
+                                            </div>
                                           )}
                                         </div>
+
+                                        {/* Sub-info: AI Source, Verification Badge, Location, Grid Segments */}
+                                        {(work.origin === 'ai' || work.elementLocation || (work.segments && work.segments.length > 0)) && (
+                                          <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                                            {work.origin === 'ai' && (
+                                              <>
+                                                <span className="inline-flex items-center gap-1 text-[10px] font-medium text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">
+                                                  <FileText className="w-2.5 h-2.5" />
+                                                  {work.sourceInfo || work.sourceDocument || 'Gambar AI'}
+                                                </span>
+                                                {renderVerificationBadgePill(work.verificationBadge)}
+                                              </>
+                                            )}
+                                            {work.elementLocation && (
+                                              <span className="text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
+                                                Lokasi: {work.elementLocation}
+                                              </span>
+                                            )}
+                                            {work.segments && work.segments.length > 0 && (
+                                              <span className="text-[10px] font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 px-1.5 py-0.5 rounded">
+                                                {work.segments.length} Segmen Grid
+                                              </span>
+                                            )}
+                                          </div>
+                                        )}
 
                                         {(work.status === 'Tidak Lengkap' ||
                                           work.status === 'Belum Lengkap' ||
@@ -1102,63 +1131,15 @@ export const WorkTable: React.FC<WorkTableProps> = ({
                                     </div>
                                   </td>
 
-                                  {/* Kategori */}
-                                  <td className="py-3 px-3">
-                                    <span
-                                      className={`inline-block px-2 py-0.5 text-[10px] font-semibold rounded-md border ${getCategoryBadgeClass(
-                                        work.category
-                                      )}`}
-                                    >
-                                      {work.category}
-                                    </span>
-                                  </td>
-
-                                  {/* Parameter / Rumus */}
-                                  <td className="py-3 px-4">
-                                    <span className="font-mono text-[11px] text-slate-700 block truncate max-w-xs">
-                                      {work.formulaDisplay}
-                                    </span>
-                                    {filledParams.length === 0 ? (
-                                      <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-500 border border-slate-200">
-                                        Parameter: Kosong
-                                      </span>
-                                    ) : (
-                                      <div className="flex flex-wrap items-center gap-1.5 mt-1 text-[10px] text-slate-500">
-                                        {work.parameters.slice(0, 3).map((p) => (
-                                          <span
-                                            key={p.id}
-                                            className={`px-1.5 py-0.5 rounded ${
-                                              p.value !== null
-                                                ? p.source === 'ai'
-                                                  ? 'bg-blue-50 text-blue-700 font-medium'
-                                                  : 'bg-slate-100 text-slate-700'
-                                                : 'bg-amber-50 text-amber-800 font-medium border border-amber-200'
-                                            }`}
-                                          >
-                                            {p.label || p.name}:{' '}
-                                            {p.value !== null ? `${p.value} ${p.unit}` : 'Kosong'}
-                                          </span>
-                                        ))}
-                                        {work.parameters.length > 3 && (
-                                          <span className="text-slate-400">
-                                            +{work.parameters.length - 3} lainnya
-                                          </span>
-                                        )}
-                                      </div>
-                                    )}
-                                  </td>
-
-                                  {/* Satuan */}
-                                  <td className="py-3 px-3 text-center font-mono text-slate-700 font-semibold">
-                                    {work.unit}
-                                  </td>
-
-                                  {/* Volume */}
-                                  <td className="py-3 px-4 text-right">
+                                  {/* 3. Volume & Satuan */}
+                                  <td className="py-2.5 px-3 text-right w-28 whitespace-nowrap">
                                     {work.calculatedVolume !== null ? (
                                       <div>
                                         <span className="font-bold text-slate-900 font-mono text-xs">
-                                          {formatIndonesianNumber(work.calculatedVolume)}
+                                          {formatIndonesianNumber(work.calculatedVolume)}{' '}
+                                          <span className="text-[11px] font-semibold text-slate-500 font-mono">
+                                            {work.unit}
+                                          </span>
                                         </span>
                                         {isAiDraft && (
                                           <span className="text-[10px] text-blue-600 block font-medium">
@@ -1167,15 +1148,17 @@ export const WorkTable: React.FC<WorkTableProps> = ({
                                         )}
                                       </div>
                                     ) : (
-                                      <span className="text-slate-400 font-mono">-</span>
+                                      <div className="font-mono text-xs text-slate-400">
+                                        - <span className="text-[11px] text-slate-400 font-semibold">{work.unit}</span>
+                                      </div>
                                     )}
                                   </td>
 
-                                  {/* Status */}
-                                  <td className="py-3 px-4 text-center">{renderStatusBadge(work)}</td>
+                                  {/* 4. Status */}
+                                  <td className="py-2.5 px-3 text-center w-28">{renderStatusBadge(work)}</td>
 
-                                  {/* Aksi */}
-                                  <td className="py-3 px-4 text-right relative">
+                                  {/* 5. Aksi */}
+                                  <td className="py-2.5 px-3 text-right w-24 relative">
                                     <div className="inline-flex items-center justify-end gap-1">
                                       {isAiDraft &&
                                         work.calculatedVolume !== null &&
@@ -1184,7 +1167,7 @@ export const WorkTable: React.FC<WorkTableProps> = ({
                                           <button
                                             onClick={() => onApproveDraftWork(work.id)}
                                             title="Setujui Pekerjaan AI"
-                                            className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-semibold transition shadow-2xs cursor-pointer"
+                                            className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-semibold transition shadow-2xs cursor-pointer apple-press"
                                           >
                                             <Check className="w-3 h-3" />
                                             <span>Setujui</span>
@@ -1194,16 +1177,15 @@ export const WorkTable: React.FC<WorkTableProps> = ({
                                       <button
                                         onClick={() => onOpenWorkDetail(work)}
                                         title="Edit Nama, Parameter & Rumus Pekerjaan"
-                                        className="inline-flex items-center gap-1 px-2 py-1 rounded-md border border-slate-200 bg-white hover:bg-blue-50 hover:border-blue-200 text-slate-700 hover:text-blue-700 text-[11px] font-medium transition cursor-pointer"
+                                        className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-blue-50 hover:border-blue-200 text-slate-600 hover:text-blue-700 text-xs transition cursor-pointer apple-press"
                                       >
-                                        <Pencil className="w-3 h-3" />
-                                        <span>Edit</span>
+                                        <Pencil className="w-3.5 h-3.5" />
                                       </button>
 
                                       <button
                                         onClick={() => setWorkToDelete(work)}
                                         title="Hapus Pekerjaan dari Kalkulator"
-                                        className="p-1.5 rounded-md border border-slate-200 bg-white hover:bg-rose-50 hover:border-rose-200 text-slate-400 hover:text-rose-600 transition cursor-pointer"
+                                        className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-rose-50 hover:border-rose-200 text-slate-400 hover:text-rose-600 transition cursor-pointer apple-press"
                                       >
                                         <Trash2 className="w-3.5 h-3.5" />
                                       </button>
@@ -1216,10 +1198,10 @@ export const WorkTable: React.FC<WorkTableProps> = ({
                                               openActionMenuId === work.id ? null : work.id
                                             );
                                           }}
-                                          className="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition cursor-pointer"
+                                          className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition cursor-pointer apple-press"
                                           title="Menu Lainnya"
                                         >
-                                          <MoreVertical className="w-4 h-4" />
+                                          <MoreVertical className="w-3.5 h-3.5" />
                                         </button>
 
                                         {openActionMenuId === work.id && (
@@ -1273,7 +1255,7 @@ export const WorkTable: React.FC<WorkTableProps> = ({
                   {/* Bottom Floor Row: Quick "+ Tambah Pekerjaan di [Nama Lantai]" */}
                   {!isFloorCollapsed && (
                     <tr className="bg-slate-50/40 hover:bg-slate-50/80 border-b border-slate-200/70">
-                      <td colSpan={9} className="py-2 px-4 text-center">
+                      <td colSpan={5} className="py-2 px-4 text-center">
                         <button
                           type="button"
                           onClick={() => onOpenAddWork(floor.id)}
