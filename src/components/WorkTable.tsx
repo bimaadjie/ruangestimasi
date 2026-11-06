@@ -604,64 +604,235 @@ export const WorkTable: React.FC<WorkTableProps> = ({
         </div>
       )}
 
-      {/* Top Filter, Floor Navigation, Show All / Minimalis, and Search Bar */}
-      <div className="p-5 border-b border-slate-100 space-y-4">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {/* Streamlined Toolbar: Search, View Mode, Single Filter Button with Popover */}
+      <div className="p-4 sm:p-5 border-b border-black/[0.06] space-y-3.5">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div>
             <h3 className="text-base font-bold text-slate-900 leading-tight">
               Daftar Pekerjaan &amp; Volume Konstruksi
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">
-              Klik kategori di bawah setiap lantai untuk membuka/menutup daftar pekerjaan secara independen.
+              Klik laci kategori di bawah setiap lantai untuk memeriksa rincian pekerjaan.
             </p>
           </div>
 
-          {/* Search Box & Global Show All / Minimalis Controls */}
-          <div className="flex flex-wrap items-center gap-2.5">
-            <div className="inline-flex items-center rounded-xl border border-slate-200 bg-slate-50 p-1 gap-1">
+          {/* Search Box, View Modes, & Single Filter Popover Button */}
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Search Input */}
+            <div className="relative w-full sm:w-56">
+              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                placeholder="Cari pekerjaan, kode..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-black/[0.08] bg-black/[0.02] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0071E3]/20 transition"
+              />
+            </div>
+
+            {/* Global Show All / Minimalis Controls */}
+            <div className="inline-flex items-center rounded-xl border border-black/[0.08] bg-black/[0.02] p-0.5 gap-0.5">
               <button
                 type="button"
                 onClick={handleToolbarShowAll}
-                title="Buka seluruh kategori pekerjaan pada lantai yang sedang dilihat"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-white hover:bg-blue-50 text-blue-700 border border-slate-200/80 shadow-2xs transition cursor-pointer"
+                title="Buka seluruh kategori (Show All)"
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white hover:bg-slate-50 text-slate-700 shadow-2xs transition cursor-pointer apple-press"
               >
-                <Maximize2 className="w-3.5 h-3.5" />
+                <Maximize2 className="w-3 h-3 text-[#0071E3]" />
                 <span>Show All</span>
               </button>
               <button
                 type="button"
                 onClick={handleToolbarMinimalis}
-                title="Tutup seluruh kategori pekerjaan sehingga hanya bar kategori yang terlihat rapi"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-white hover:bg-slate-100 text-slate-700 border border-slate-200/80 shadow-2xs transition cursor-pointer"
+                title="Tutup kategori (Minimalis)"
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white hover:bg-slate-50 text-slate-700 shadow-2xs transition cursor-pointer apple-press"
               >
-                <Minimize2 className="w-3.5 h-3.5" />
+                <Minimize2 className="w-3 h-3 text-slate-500" />
                 <span>Minimalis</span>
               </button>
             </div>
 
-            <div className="relative w-full sm:w-60">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <input
-                type="text"
-                placeholder="Cari pekerjaan, kode (B1, K1)..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-              />
+            {/* Single Filter Button with Popover Menu */}
+            <div className="relative" ref={filterPopoverRef}>
+              <button
+                type="button"
+                onClick={() => setIsFilterPopoverOpen((prev) => !prev)}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition cursor-pointer apple-press ${
+                  activeFilterCount > 0
+                    ? 'bg-[#0071E3]/10 text-[#0071E3] border-[#0071E3]/30 shadow-2xs font-bold'
+                    : 'bg-white hover:bg-slate-50 text-slate-700 border-black/[0.08] shadow-2xs'
+                }`}
+                title="Buka opsi filter kategori dan status"
+              >
+                <SlidersHorizontal className="w-3.5 h-3.5" />
+                <span>Filter</span>
+                {activeFilterCount > 0 && (
+                  <span className="w-4 h-4 rounded-full bg-[#0071E3] text-white text-[10px] font-mono font-bold flex items-center justify-center">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Popover Flyout */}
+              {isFilterPopoverOpen && (
+                <div className="absolute right-0 top-full mt-2 w-72 sm:w-80 bg-white rounded-2xl border border-slate-200/90 shadow-2xl z-40 p-4 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+                  {/* Popover Header */}
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                    <div className="flex items-center gap-1.5">
+                      <SlidersHorizontal className="w-3.5 h-3.5 text-[#0071E3]" />
+                      <span className="text-xs font-bold text-slate-900">Filter Pekerjaan</span>
+                    </div>
+                    {activeFilterCount > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedCategory('Semua');
+                          setLocalStatusFilter('all');
+                          if (onStatusFilterChange) onStatusFilterChange('all');
+                        }}
+                        className="text-[11px] font-semibold text-rose-600 hover:text-rose-700 transition cursor-pointer"
+                      >
+                        Reset Filter
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Section 1: Kategori Pekerjaan */}
+                  <div>
+                    <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                      Kategori Pekerjaan
+                    </span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {categories.map((cat) => {
+                        const isSelected = selectedCategory === cat;
+                        return (
+                          <button
+                            key={cat}
+                            type="button"
+                            onClick={() => setSelectedCategory(cat)}
+                            className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer apple-press ${
+                              isSelected
+                                ? 'bg-[#0071E3] text-white shadow-2xs'
+                                : 'bg-slate-100/80 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
+                            }`}
+                          >
+                            {cat}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Section 2: Status Pekerjaan */}
+                  <div>
+                    <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                      Status Pekerjaan
+                    </span>
+                    <div className="flex flex-wrap gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setLocalStatusFilter('all');
+                          if (onStatusFilterChange) onStatusFilterChange('all');
+                        }}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer apple-press ${
+                          localStatusFilter === 'all'
+                            ? 'bg-slate-800 text-white'
+                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        }`}
+                      >
+                        Semua Status
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setLocalStatusFilter(
+                            localStatusFilter === 'belum_diisi' ? 'all' : 'belum_diisi'
+                          )
+                        }
+                        className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer apple-press ${
+                          localStatusFilter === 'belum_diisi'
+                            ? 'bg-slate-700 text-white'
+                            : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                        }`}
+                      >
+                        Belum Diisi
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setLocalStatusFilter(
+                            localStatusFilter === 'tidak_lengkap' ? 'all' : 'tidak_lengkap'
+                          )
+                        }
+                        className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer apple-press ${
+                          localStatusFilter === 'tidak_lengkap'
+                            ? 'bg-amber-600 text-white'
+                            : 'bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100'
+                        }`}
+                      >
+                        Tidak Lengkap
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setLocalStatusFilter(
+                            localStatusFilter === 'perlu_verifikasi' ? 'all' : 'perlu_verifikasi'
+                          )
+                        }
+                        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer apple-press ${
+                          localStatusFilter === 'perlu_verifikasi'
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100'
+                        }`}
+                      >
+                        <FileText className="w-3 h-3" />
+                        <span>Perlu Verifikasi ({activeDraftWorks.length})</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setLocalStatusFilter(
+                            localStatusFilter === 'terverifikasi' ? 'all' : 'terverifikasi'
+                          )
+                        }
+                        className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer apple-press ${
+                          localStatusFilter === 'terverifikasi'
+                            ? 'bg-emerald-600 text-white'
+                            : 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'
+                        }`}
+                      >
+                        Terverifikasi
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Popover Footer */}
+                  <div className="pt-2 border-t border-slate-100 flex items-center justify-end">
+                    <button
+                      type="button"
+                      onClick={() => setIsFilterPopoverOpen(false)}
+                      className="w-full py-1.5 px-3 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition cursor-pointer apple-press text-center"
+                    >
+                      Tutup &amp; Terapkan
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Floor Selector Bar (Mempertahankan status buka/tutup kategori per lantai saat berpindah lantai) */}
-        <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-slate-100">
-          <span className="text-[11px] font-bold text-slate-500 mr-1 flex items-center gap-1">
-            <Layers className="w-3.5 h-3.5 text-blue-600" />
+        {/* Floor Quick Tabs */}
+        <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-slate-100">
+          <span className="text-[11px] font-semibold text-slate-500 mr-1 flex items-center gap-1">
+            <Layers className="w-3.5 h-3.5 text-[#0071E3]" />
             <span>Pilih Lantai:</span>
           </span>
           <button
             type="button"
             onClick={() => setSelectedFloorTab('ALL')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+            className={`px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer apple-press ${
               selectedFloorTab === 'ALL'
                 ? 'bg-slate-900 text-white shadow-2xs'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -677,9 +848,9 @@ export const WorkTable: React.FC<WorkTableProps> = ({
                 key={fl.id}
                 type="button"
                 onClick={() => setSelectedFloorTab(fl.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer flex items-center gap-1.5 ${
+                className={`px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer flex items-center gap-1.5 apple-press ${
                   isSelectedFloor
-                    ? 'bg-blue-600 text-white shadow-2xs'
+                    ? 'bg-[#0071E3] text-white shadow-2xs'
                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                 }`}
               >
@@ -696,98 +867,52 @@ export const WorkTable: React.FC<WorkTableProps> = ({
           })}
         </div>
 
-        {/* Filter Tabs (Category + Status Quick Filter) */}
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2 overflow-x-auto pb-1">
-            {categories.map((cat) => {
-              const isSelected = selectedCategory === cat;
-              return (
+        {/* Active Filter Chips (if any filter is active) */}
+        {activeFilterCount > 0 && (
+          <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-slate-100 text-xs animate-in fade-in duration-150">
+            <span className="text-[11px] font-semibold text-slate-400">Filter Aktif:</span>
+            {selectedCategory !== 'Semua' && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-[11px] font-semibold">
+                <span>Kategori: {selectedCategory}</span>
                 <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all shrink-0 cursor-pointer ${
-                    isSelected
-                      ? 'bg-blue-600 text-white shadow-2xs'
-                      : 'bg-slate-100/80 text-slate-600 hover:bg-slate-200/70 hover:text-slate-900'
-                  }`}
+                  type="button"
+                  onClick={() => setSelectedCategory('Semua')}
+                  className="hover:text-blue-900 transition cursor-pointer"
+                  title="Hapus filter kategori"
                 >
-                  {cat}
+                  <X className="w-3 h-3" />
                 </button>
-              );
-            })}
-          </div>
-
-          <div className="flex flex-wrap items-center gap-1.5 text-xs">
+              </span>
+            )}
+            {localStatusFilter !== 'all' && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-800 border border-slate-200 text-[11px] font-semibold">
+                <span>Status: {getStatusFilterLabel(localStatusFilter)}</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLocalStatusFilter('all');
+                    if (onStatusFilterChange) onStatusFilterChange('all');
+                  }}
+                  className="hover:text-slate-950 transition cursor-pointer"
+                  title="Hapus filter status"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            )}
             <button
+              type="button"
               onClick={() => {
+                setSelectedCategory('Semua');
                 setLocalStatusFilter('all');
                 if (onStatusFilterChange) onStatusFilterChange('all');
               }}
-              className={`px-2.5 py-1 rounded-md font-medium transition cursor-pointer ${
-                localStatusFilter === 'all'
-                  ? 'bg-slate-800 text-white'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
+              className="text-[11px] font-semibold text-slate-500 hover:text-rose-600 transition ml-1 cursor-pointer"
             >
-              Semua Status
-            </button>
-            <button
-              onClick={() =>
-                setLocalStatusFilter(localStatusFilter === 'belum_diisi' ? 'all' : 'belum_diisi')
-              }
-              className={`px-2.5 py-1 rounded-md font-medium transition cursor-pointer ${
-                localStatusFilter === 'belum_diisi'
-                  ? 'bg-slate-700 text-white'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-              }`}
-            >
-              Belum Diisi
-            </button>
-            <button
-              onClick={() =>
-                setLocalStatusFilter(
-                  localStatusFilter === 'tidak_lengkap' ? 'all' : 'tidak_lengkap'
-                )
-              }
-              className={`px-2.5 py-1 rounded-md font-medium transition cursor-pointer ${
-                localStatusFilter === 'tidak_lengkap'
-                  ? 'bg-amber-600 text-white'
-                  : 'bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100'
-              }`}
-            >
-              Tidak Lengkap
-            </button>
-            <button
-              onClick={() =>
-                setLocalStatusFilter(
-                  localStatusFilter === 'perlu_verifikasi' ? 'all' : 'perlu_verifikasi'
-                )
-              }
-              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md font-semibold transition cursor-pointer ${
-                localStatusFilter === 'perlu_verifikasi'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100'
-              }`}
-            >
-              <FileText className="w-3 h-3" />
-              Perlu Verifikasi ({activeDraftWorks.length})
-            </button>
-            <button
-              onClick={() =>
-                setLocalStatusFilter(
-                  localStatusFilter === 'terverifikasi' ? 'all' : 'terverifikasi'
-                )
-              }
-              className={`px-2.5 py-1 rounded-md font-medium transition cursor-pointer ${
-                localStatusFilter === 'terverifikasi'
-                  ? 'bg-emerald-600 text-white'
-                  : 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'
-              }`}
-            >
-              Terverifikasi
+              Hapus Semua Filter
             </button>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Grouped Table View with Floor Groups -> Independent Category Drawers -> Work Rows */}
