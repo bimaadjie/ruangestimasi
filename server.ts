@@ -88,7 +88,9 @@ interface ServerAICacheEntry {
   data: any;
 }
 
-const DATA_DIR = path.resolve(process.cwd(), 'data');
+const DATA_DIR = process.env.VERCEL
+  ? path.join('/tmp', 'data')
+  : path.resolve(process.cwd(), 'data');
 const USERS_FILE = path.join(DATA_DIR, 'users_store.json');
 const PROJECTS_FILE = path.join(DATA_DIR, 'projects_store.json');
 const AI_CACHE_FILE = path.join(DATA_DIR, 'ai_cache_store.json');
@@ -1040,4 +1042,9 @@ async function startServer() {
   });
 }
 
-startServer();
+// Hanya jalankan startServer langsung jika tidak berjalan di environment serverless Vercel
+if (!process.env.VERCEL) {
+  startServer();
+}
+
+export default app;
